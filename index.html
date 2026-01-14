@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>退職手当計算ツール（教育職）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section, .result-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .result-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .result-amount {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .result-amount .label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .result-amount .value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .result-amount .unit {
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .breakdown-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .breakdown-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .calculation-details {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        
+        .detail-section h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .detail-row {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .formula {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .notice-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        
+        .notice-box strong {
+            color: #856404;
+        }
+        
+        .leave-section {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .leave-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .leave-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-add {
+            background: #28a745;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .age-input-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            margin-bottom: 20px;
+        }
+        
+        .age-input-box input {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏫 退職手当計算ツール（教育職）</h1>
+            <p>北海道学校職員の退職手当を計算します</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- 入力セクション -->
+            <div class="input-section">
+                <h2 class="section-title">📝 基本情報入力</h2>
+                
+                <div id="errorMessage" class="error-message hidden"></div>
+                
+                <div class="form-group">
+                    <label for="hireDate">採用年月日</label>
+                    <input type="date" id="hireDate" required onchange="updateReiwaDisplay()">
+                    <div id="hireDateReiwa" style="font-size: 13px; color: #667eea; margin-top: 5px;"></div>
+                    <p style="font-size: 12px; color: #999; margin-top: 5px;">
+                        <strong>元号対応表:</strong><br>
+                        令和: R1=2019年, R2=2020年, R3=2021年, R4=2022年, R5=2023年, R6=2024年, R7=2025年<br>
+                        平成: H1=1989年, H2=1990年, H5=1993年, H10=1998年, H15=2003年, H20=2008年, H25=2013年, H30=2018年, H31=2019年
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="retireDate">退職予定年月日</label>
+                    <input type="date" id="retireDate" required onchange="updateReiwaDisplay()">
+                    <div id="retireDateReiwa" style="font-size: 13px; color: #667eea; margin-top: 5px;"></div>
+                    <div id="retireDateInfo"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="retireReason">退職事由</label>
+                    <select id="retireReason">
+                        <option value="">選択してください</option>
+                        <option value="3">自己都合退職</option>
+                        <option value="4">定年退職（25年未満）</option>
+                        <option value="5-teinnen">定年退職（25年以上）</option>
+                        <option value="4">勧奨退職（25年未満）</option>
+                        <option value="5-kansho">勧奨退職（25年以上）</option>
+                        <option value="5">整理退職</option>
+                        <option value="5">公務上の死亡・傷病</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="earlyRetireBonusGroup" style="display: none;">
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                        <label style="font-weight: normal; color: #1976d2; margin-bottom: 0;">
+                            <input type="checkbox" id="earlyRetireBonus" style="width: auto;" checked>
+                            <strong>早期退職特例（割増）を適用する</strong><br>
+                            <span style="font-size: 13px; color: #666;">※年度ごとに対象年齢が変わります（R7:51歳〜, R8:52歳〜, R9:53歳〜, R10:54歳〜, R11〜:55歳〜）</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="ageInputGroup" style="display: none;">
+                    <div class="age-input-box">
+                        <label style="color: #1976d2;">退職日時点での年齢</label>
+                        <input type="number" id="retireAge" min="51" max="59" placeholder="年齢を入力">
+                        <p style="font-size: 13px; color: #666; margin-top: 5px;">※退職年度によって最低年齢が変わります（退職日入力後に上記で確認）</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #667eea;">💰 給与情報</h3>
+                
+                <div class="form-group">
+                    <label for="grade">職務の級</label>
+                    <select id="grade">
+                        <option value="">選択してください</option>
+                        <option value="1級">1級</option>
+                        <option value="2級">2級</option>
+                        <option value="特2級">特2級</option>
+                        <option value="3級">3級</option>
+                        <option value="4級">4級</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="step">号俸</label>
+                    <input type="number" id="step" min="1" placeholder="例: 50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="position">職員区分（調整額）</label>
+                    <select id="position">
+                        <option value="">選択してください</option>
+                        <option value="5">第5号（4級校長・加算率20%相当）- 59,550円</option>
+                        <option value="6">第6号（4級校長・加算率15%相当）- 54,150円</option>
+                        <option value="7">第7号（4級校長・上記以外）- 43,350円</option>
+                        <option value="8">第8号（3級教頭）- 32,500円</option>
+                        <option value="9">第9号（特2級指導教諭等/2級教諭等）- 27,100円</option>
+                        <option value="10">第10号（2級教諭・加算率5%相当）- 21,700円</option>
+                        <option value="11">第11号（1級/2級教諭・実習助手等）- 0円</option>
+                    </select>
+                </div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #667eea;">⏸️ 除算期間（任意）</h3>
+                
+                <div class="leave-section" id="leaveSection">
+                    <div id="leaveItems"></div>
+                    <button type="button" class="btn-small btn-add" id="addLeaveBtn">+ 除算期間を追加</button>
+                </div>
+                
+                <button class="btn" id="calculateBtn" style="margin-top: 30px;">🧮 計算する</button>
+            </div>
+            
+            <!-- 結果セクション -->
+            <div class="result-section">
+                <h2 class="section-title">📊 計算結果</h2>
+                
+                <div id="resultArea" class="hidden">
+                    <div class="result-summary">
+                        <div class="result-amount">
+                            <div class="label">退職手当額（合計）</div>
+                            <div>
+                                <span class="value" id="totalAmount">0</span>
+                                <span class="unit">円</span>
+                            </div>
+                        </div>
+                        
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">基本額</span>
+                            <span class="breakdown-value" id="basicAmount">0円</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">調整額</span>
+                            <span class="breakdown-value" id="adjustmentAmount">0円</span>
+                        </div>
+                    </div>
+                    
+                    <div class="calculation-details">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">📝 計算過程の詳細</h3>
+                        
+                        <div class="detail-section">
+                            <h4>1️⃣ 勤続年数の計算</h4>
+                            <div id="serviceYearsDetail"></div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>2️⃣ 退職日給料月額の計算</h4>
+                            <div id="salaryDetail"></div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>3️⃣ 基本額の計算</h4>
+                            <div id="basicAmountDetail"></div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h4>4️⃣ 調整額の計算</h4>
+                            <div id="adjustmentDetail"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="notice-box">
+                        <strong>⚠️ 注意事項</strong><br>
+                        退職時に特別支援学級担当の場合、退職日給料月額に「給料の調整額」を加算して計算してください。<br>
+                        （おおよそ退職手当額に50万円程度プラスされます）
+                    </div>
+                </div>
+                
+                <div id="emptyState" style="text-align: center; padding: 50px 20px; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                    <p>左側のフォームに情報を入力して<br>「計算する」ボタンを押してください</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+
+const SALARY_TABLE = {"1級": {"1": 212900, "2": 215300, "3": 217600, "4": 219900, "5": 222100, "6": 224400, "7": 226600, "8": 228800, "9": 231000, "10": 233200, "11": 235400, "12": 237600, "13": 239800, "14": 241900, "15": 244000, "16": 246100, "17": 248200, "18": 250000, "19": 251700, "20": 253400, "21": 255100, "22": 256400, "23": 257700, "24": 258900, "25": 260100, "26": 261200, "27": 262300, "28": 263400, "29": 264600, "30": 265700, "31": 266800, "32": 267800, "33": 268900, "34": 269900, "35": 270900, "36": 272000, "37": 273200, "38": 274100, "39": 275100, "40": 276200, "41": 277400, "42": 278500, "43": 279600, "44": 280700, "45": 281600, "46": 282400, "47": 283200, "48": 284000, "49": 284600, "50": 285400, "51": 286100, "52": 286800, "53": 287600, "54": 288400, "55": 289000, "56": 289700, "57": 290400, "58": 291200, "59": 292000, "60": 292600, "61": 293200, "62": 293900, "63": 294600, "64": 295100, "65": 295800, "66": 296500, "67": 297100, "68": 297700, "69": 298400, "70": 299100, "71": 299700, "72": 300400, "73": 300900, "74": 301500, "75": 302200, "76": 302700, "77": 303300, "78": 303900, "79": 304500, "80": 305100, "81": 305600, "82": 306100, "83": 306700, "84": 307300, "85": 307700, "86": 308100, "87": 308600, "88": 309100, "89": 309500, "90": 310000, "91": 310400, "92": 310900, "93": 311200, "94": 311700, "95": 312200, "96": 312600, "97": 312900, "98": 313300, "99": 313700, "100": 314100, "101": 314500, "102": 314800, "103": 315100, "104": 315400, "105": 315600, "106": 315900, "107": 316200, "108": 316400, "109": 316600, "110": 316800, "111": 317100, "112": 317400, "113": 317600, "114": 317800, "115": 318000, "116": 318300, "117": 318600, "118": 318800, "119": 319100, "120": 319400, "121": 319600, "122": 319800, "123": 320000, "124": 320300, "125": 320600}, "2級": {"1": 234000, "2": 236400, "3": 238800, "4": 241300, "5": 243700, "6": 246100, "7": 248500, "8": 251000, "9": 253400, "10": 255000, "11": 256600, "12": 258200, "13": 259800, "14": 261200, "15": 262600, "16": 264000, "17": 265400, "18": 266600, "19": 267800, "20": 269000, "21": 270300, "22": 271400, "23": 272500, "24": 273700, "25": 275000, "26": 276700, "27": 278400, "28": 280100, "29": 281800, "30": 283800, "31": 286000, "32": 288200, "33": 290400, "34": 292600, "35": 294800, "36": 296900, "37": 298900, "38": 300800, "39": 302700, "40": 304500, "41": 306300, "42": 308200, "43": 310000, "44": 311700, "45": 313400, "46": 315200, "47": 316900, "48": 318500, "49": 320100, "50": 321800, "51": 323600, "52": 325300, "53": 326600, "54": 328500, "55": 330300, "56": 332000, "57": 333600, "58": 335500, "59": 337200, "60": 338900, "61": 340600, "62": 342300, "63": 344000, "64": 345700, "65": 347400, "66": 348700, "67": 350000, "68": 351300, "69": 352800, "70": 354300, "71": 355800, "72": 357300, "73": 358600, "74": 360100, "75": 361600, "76": 363000, "77": 364400, "78": 365900, "79": 367400, "80": 368900, "81": 370200, "82": 371500, "83": 372800, "84": 374000, "85": 375200, "86": 376400, "87": 377500, "88": 378600, "89": 379600, "90": 380700, "91": 381800, "92": 382900, "93": 384000, "94": 385100, "95": 386100, "96": 387200, "97": 388200, "98": 389200, "99": 390100, "100": 391000, "101": 391800, "102": 392800, "103": 393600, "104": 394500, "105": 395300, "106": 396200, "107": 397100, "108": 398000, "109": 398800, "110": 399800, "111": 400700, "112": 401600, "113": 402200, "114": 403100, "115": 404000, "116": 404900, "117": 405700, "118": 406400, "119": 407200, "120": 408000, "121": 408600, "122": 409300, "123": 410000, "124": 410600, "125": 411200, "126": 411900, "127": 412400, "128": 413000, "129": 413600, "130": 414200, "131": 414700, "132": 415200, "133": 415500, "134": 415800, "135": 416000, "136": 416300, "137": 416600, "138": 416900, "139": 417200, "140": 417500, "141": 417800, "142": 418100, "143": 418400, "144": 418700, "145": 418900, "146": 419200, "147": 419500, "148": 419700, "149": 419900, "150": 420200, "151": 420500, "152": 420700, "153": 420900, "154": 421200, "155": 421500, "156": 421700, "157": 421900}, "特2級": {"1": 332500, "2": 334300, "3": 336100, "4": 337800, "5": 339400, "6": 341300, "7": 343200, "8": 345000, "9": 346800, "10": 348800, "11": 350600, "12": 352300, "13": 354000, "14": 355700, "15": 357200, "16": 358800, "17": 360400, "18": 361700, "19": 362900, "20": 364000, "21": 365300, "22": 366700, "23": 368100, "24": 369400, "25": 370600, "26": 372000, "27": 373300, "28": 374600, "29": 375800, "30": 377200, "31": 378500, "32": 379800, "33": 381100, "34": 382300, "35": 383400, "36": 384600, "37": 385800, "38": 387000, "39": 388200, "40": 389300, "41": 390400, "42": 391600, "43": 392800, "44": 393900, "45": 395000, "46": 396300, "47": 397500, "48": 398600, "49": 399500, "50": 400700, "51": 401700, "52": 402800, "53": 403600, "54": 404700, "55": 405700, "56": 406700, "57": 407800, "58": 408800, "59": 409900, "60": 411000, "61": 412000, "62": 413100, "63": 414200, "64": 415200, "65": 416100, "66": 417000, "67": 418000, "68": 419000, "69": 419800, "70": 420600, "71": 421300, "72": 422100, "73": 422800, "74": 423400, "75": 424100, "76": 424800, "77": 425400, "78": 426100, "79": 426600, "80": 427200, "81": 427600, "82": 428000, "83": 428300, "84": 428500, "85": 428700, "86": 429000, "87": 429300, "88": 429500, "89": 429700, "90": 430000, "91": 430300, "92": 430500, "93": 430700, "94": 431000, "95": 431300, "96": 431500, "97": 431700, "98": 432000, "99": 432300, "100": 432500, "101": 432700, "102": 433000, "103": 433300, "104": 433500, "105": 433700}, "3級": {"1": 361900, "2": 363400, "3": 364900, "4": 366300, "5": 367700, "6": 369000, "7": 370300, "8": 371700, "9": 373100, "10": 374400, "11": 375700, "12": 376900, "13": 378100, "14": 379400, "15": 380600, "16": 381800, "17": 382800, "18": 384000, "19": 385200, "20": 386300, "21": 387300, "22": 388500, "23": 389700, "24": 390800, "25": 391800, "26": 393000, "27": 394100, "28": 395200, "29": 396300, "30": 397500, "31": 398700, "32": 399800, "33": 400800, "34": 401900, "35": 403100, "36": 404300, "37": 405500, "38": 406800, "39": 407900, "40": 409100, "41": 410200, "42": 411500, "43": 412500, "44": 413600, "45": 414800, "46": 416000, "47": 417200, "48": 418400, "49": 419500, "50": 420500, "51": 421800, "52": 423000, "53": 424200, "54": 425300, "55": 426400, "56": 427500, "57": 428500, "58": 429700, "59": 430900, "60": 432100, "61": 432700, "62": 433500, "63": 434200, "64": 434700, "65": 435000, "66": 435300, "67": 435700, "68": 436100, "69": 436400, "70": 436800, "71": 437100, "72": 437400, "73": 437700, "74": 438000, "75": 438300, "76": 438600, "77": 438800, "78": 439100, "79": 439400, "80": 439600, "81": 439800, "82": 440100, "83": 440400, "84": 440600, "85": 440800, "86": 441100, "87": 441400, "88": 441600, "89": 441800, "90": 442100, "91": 442400, "92": 442600, "93": 442800}, "4級": {"1": 448100, "2": 449400, "3": 450600, "4": 451900, "5": 453000, "6": 454100, "7": 455300, "8": 456500, "9": 457800, "10": 459000, "11": 460100, "12": 461200, "13": 462400, "14": 463200, "15": 464000, "16": 464900, "17": 465800, "18": 466200, "19": 466700, "20": 467200, "21": 467700, "22": 468100, "23": 468600, "24": 469100, "25": 469600, "26": 470000, "27": 470500, "28": 471000, "29": 471500, "30": 471900, "31": 472400, "32": 472900, "33": 473400}};
+
+const SHIKYUWARI_TABLE = {
+    "3条": {
+        1: 0.5042, 2: 1.0084, 3: 1.5126, 4: 2.0168, 5: 2.521, 6: 3.0252, 7: 3.5294, 8: 4.0336, 9: 4.5378,
+        10: 5.042, 11: 7.1126, 12: 8.99256, 13: 9.40614, 14: 9.81972, 15: 11.1338, 16: 11.85192, 17: 12.66672,
+        18: 13.39152, 19: 15.6924, 20: 18.0684, 21: 19.53, 22: 20.9916, 23: 22.4532, 24: 23.9148, 25: 25.3764,
+        26: 26.838, 27: 28.2996, 28: 29.7612, 29: 31.2228, 30: 34.5285, 31: 36.6975, 32: 38.0325, 33: 39.3675,
+        34: 40.7025, 35: 42.0375, 36: 43.3725, 37: 44.7075, 38: 46.0425, 39: 47.3775, 40: 44.7795, 41: 44.7639,
+        42: 47.709, 43: 47.709, 44: 47.709, 45: 47.709, 46: 47.709, 47: 47.709
+    },
+    "4条": {
+        1: 0.837, 2: 1.674, 3: 2.511, 4: 3.348, 5: 4.185, 6: 5.022, 7: 5.859, 8: 6.696, 9: 7.533,
+        10: 8.37, 11: 9.9252, 12: 11.31024, 13: 11.8104, 14: 12.3106, 15: 13.8564, 16: 14.4306, 17: 15.0048,
+        18: 15.579, 19: 18.2628, 20: 21.971, 21: 24.4875, 22: 25.8975, 23: 27.3075, 24: 28.7175, 25: 29.3625,
+        26: 30.0075, 27: 31.5525, 28: 33.0975, 29: 34.6425, 30: 35.8875, 31: 36.975, 32: 38.0625, 33: 40.2375,
+        34: 41.325, 35: 43.7, 36: 44.8875, 37: 41.85, 38: 43.8525, 39: 44.935, 40: 44.08975, 41: 44.08975,
+        42: 47.709, 43: 47.0125, 44: 47.709, 45: 47.709, 46: 47.709, 47: 47.709
+    },
+    "5条": {
+        1: 1.0035, 2: 2.007, 3: 3.01065, 4: 4.0143, 5: 5.01795, 6: 6.0216, 7: 7.0242, 8: 8.0289, 9: 9.0306,
+        10: 10.4625, 11: 12.75225, 12: 14.41275, 13: 14.98125, 14: 15.54975, 15: 17.08275, 16: 20.3475,
+        17: 21.2625, 18: 22.6275, 19: 24.54125, 20: 21.971325, 21: 24.58875, 22: 26.4375, 23: 28.2825, 24: 30.135,
+        25: 32.0475, 26: 33.076, 27: 34.7035, 28: 36.4485, 29: 38.0625, 30: 41.4315, 31: 43.6425, 32: 45.8535,
+        33: 46.435, 34: 47.709, 35: 49.59, 36: 49.59, 37: 47.709, 38: 47.709, 39: 49.59, 40: 47.709,
+        41: 47.709, 42: 47.709, 43: 47.709, 44: 47.709, 45: 47.709, 46: 47.709, 47: 47.709
+    }
+};
+
+const CHOSEI_AMOUNT = {
+    5: 59550, 6: 54150, 7: 43350, 8: 32500, 9: 27100, 10: 21700, 11: 0
+};
+
+let leaveItems = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('ページ読み込み完了');
+    
+    const calculateBtn = document.getElementById('calculateBtn');
+    const addLeaveBtn = document.getElementById('addLeaveBtn');
+    const retireReason = document.getElementById('retireReason');
+    const earlyRetireBonus = document.getElementById('earlyRetireBonus');
+    
+    if (calculateBtn) {
+        calculateBtn.addEventListener('click', calculate);
+    }
+    
+    if (addLeaveBtn) {
+        addLeaveBtn.addEventListener('click', addLeaveItem);
+    }
+    
+    if (retireReason) {
+        retireReason.addEventListener('change', updateEarlyRetireBonus);
+    }
+    
+    if (earlyRetireBonus) {
+        earlyRetireBonus.addEventListener('change', function() {
+            updateAgeInputVisibility();
+        });
+    }
+    
+    renderLeaveItems();
+});
+
+function updateEarlyRetireBonus() {
+    const retireReason = document.getElementById('retireReason').value;
+    const earlyRetireBonusGroup = document.getElementById('earlyRetireBonusGroup');
+    
+    if (retireReason === '5-kansho') {
+        earlyRetireBonusGroup.style.display = 'block';
+        document.getElementById('earlyRetireBonus').checked = true;
+        updateAgeInputVisibility();
+    } else {
+        earlyRetireBonusGroup.style.display = 'none';
+        document.getElementById('earlyRetireBonus').checked = false;
+        document.getElementById('ageInputGroup').style.display = 'none';
+    }
+}
+
+function updateAgeInputVisibility() {
+    const earlyRetireBonus = document.getElementById('earlyRetireBonus').checked;
+    const ageInputGroup = document.getElementById('ageInputGroup');
+    
+    if (earlyRetireBonus) {
+        ageInputGroup.style.display = 'block';
+    } else {
+        ageInputGroup.style.display = 'none';
+    }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('hidden');
+    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function hideError() {
+    document.getElementById('errorMessage').classList.add('hidden');
+}
+
+function addLeaveItem() {
+    const id = Date.now();
+    leaveItems.push({ id, type: 'general', startDate: '', endDate: '' });
+    renderLeaveItems();
+}
+
+function removeLeaveItem(id) {
+    leaveItems = leaveItems.filter(item => item.id !== id);
+    renderLeaveItems();
+}
+
+function renderLeaveItems() {
+    const container = document.getElementById('leaveItems');
+    
+    if (leaveItems.length === 0) {
+        container.innerHTML = '<p style="color: #666; font-size: 14px;">除算期間がありません</p>';
+        return;
+    }
+    
+    container.innerHTML = leaveItems.map(item => `
+        <div class="leave-item">
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 14px;">除算種類</label>
+                <select onchange="updateLeaveType(${item.id}, this.value)" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                    <option value="general" ${item.type === 'general' ? 'selected' : ''}>一般の休職・停職（1/2除算）</option>
+                    <option value="union" ${item.type === 'union' ? 'selected' : ''}>組合専従休職（100%除算）</option>
+                    <option value="childcare1" ${item.type === 'childcare1' ? 'selected' : ''}>育児休業（子が1歳まで・1/3除算）</option>
+                    <option value="childcare2" ${item.type === 'childcare2' ? 'selected' : ''}>育児休業（その他・1/2除算）</option>
+                    <option value="parttime" ${item.type === 'parttime' ? 'selected' : ''}>育児短時間勤務（1/3除算）</option>
+                </select>
+            </div>
+            <div class="leave-controls">
+                <input type="date" onchange="updateLeaveDate(${item.id}, 'start', this.value)" value="${item.startDate}" placeholder="開始日" style="padding: 8px;">
+                <input type="date" onchange="updateLeaveDate(${item.id}, 'end', this.value)" value="${item.endDate}" placeholder="終了日" style="padding: 8px;">
+                <button class="btn-small" onclick="removeLeaveItem(${item.id})">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateLeaveType(id, type) {
+    const item = leaveItems.find(i => i.id === id);
+    if (item) item.type = type;
+}
+
+function updateLeaveDate(id, field, value) {
+    const item = leaveItems.find(i => i.id === id);
+    if (item) {
+        if (field === 'start') item.startDate = value;
+        if (field === 'end') item.endDate = value;
+    }
+}
+
+function getMonthsBetween(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    let months = (end.getFullYear() - start.getFullYear()) * 12;
+    months += end.getMonth() - start.getMonth();
+    
+    if (end.getDate() >= start.getDate()) {
+        months += 1;
+    }
+    
+    return months;
+}
+
+function calculateServiceYears(hireDate, retireDate, leaves) {
+    const totalMonths = getMonthsBetween(hireDate, retireDate);
+    
+    let deductionMonths = 0;
+    const details = [];
+    
+    leaves.forEach(leave => {
+        if (!leave.startDate || !leave.endDate) return;
+        
+        const leaveMonths = getMonthsBetween(leave.startDate, leave.endDate);
+        let deduction = 0;
+        let rate = '';
+        
+        switch(leave.type) {
+            case 'general':
+                deduction = leaveMonths / 2;
+                rate = '1/2';
+                break;
+            case 'union':
+                deduction = leaveMonths;
+                rate = '100%';
+                break;
+            case 'childcare1':
+                deduction = leaveMonths / 3;
+                rate = '1/3';
+                break;
+            case 'childcare2':
+                deduction = leaveMonths / 2;
+                rate = '1/2';
+                break;
+            case 'parttime':
+                deduction = leaveMonths / 3;
+                rate = '1/3';
+                break;
+        }
+        
+        deductionMonths += deduction;
+        details.push({ type: leave.type, months: leaveMonths, deduction, rate });
+    });
+    
+    const netMonths = totalMonths - deductionMonths;
+    const years = Math.floor(netMonths / 12);
+    const remainingMonths = netMonths % 12;
+    const serviceYears = remainingMonths >= 6 ? years + 1 : years;
+    
+    return { totalMonths, deductionMonths, netMonths, serviceYears, details };
+}
+
+function calculateRetireSalary(grade, step, isManager, retireDate) {
+    if (!SALARY_TABLE[grade] || !SALARY_TABLE[grade][step]) {
+        throw new Error('給与表にデータが見つかりません（級: ' + grade + ', 号俸: ' + step + '）');
+    }
+    
+    const baseSalary = SALARY_TABLE[grade][step];
+    let allowance = 0;
+    let allowanceType = '';
+    let adjustmentRate = 0;
+    
+    if (isManager) {
+        if (grade === '4級') {
+            allowance = 4000;
+            allowanceType = '管理職加算（4級）';
+        } else if (grade === '3級') {
+            allowance = 11500;
+            allowanceType = '管理職加算（3級）';
+        }
+    } else {
+        adjustmentRate = getTeacherAdjustmentRate(retireDate);
+        allowance = Math.floor(baseSalary * adjustmentRate);
+        allowanceType = `教職調整額（${(adjustmentRate * 100).toFixed(0)}%）`;
+    }
+    
+    return {
+        baseSalary,
+        allowance,
+        allowanceType,
+        adjustmentRate,
+        total: baseSalary + allowance
+    };
+}
+
+function calculateAdjustmentAmount(choseiMonthly, serviceYears, retireReason) {
+    if (choseiMonthly === 0) return { amount: 0, months: 0, rate: 0, detail: '調整額なし' };
+    
+    let months = 0;
+    let rate = 1.0;
+    let detail = '';
+    
+    if (retireReason === '5条' || retireReason === '4条') {
+        // 定年退職・勧奨退職
+        if (serviceYears >= 5) {
+            months = 60;
+            rate = 1.0;
+            detail = `勤続${serviceYears}年（5年以上）→ 全額×60か月`;
+        } else if (serviceYears >= 1) {
+            months = serviceYears * 12; // 勤務月数
+            rate = 0.5;
+            detail = `勤続${serviceYears}年（1〜4年）→ 半額×${months}か月`;
+        } else {
+            return { amount: 0, months: 0, rate: 0, detail: '勤続1年未満のため調整額なし' };
+        }
+    } else if (retireReason === '3条') {
+        // 自己都合退職
+        if (serviceYears >= 25) {
+            months = 60;
+            rate = 1.0;
+            detail = `勤続${serviceYears}年（25年以上）→ 全額×60か月`;
+        } else if (serviceYears >= 10) {
+            months = 60;
+            rate = 0.5;
+            detail = `勤続${serviceYears}年（10〜24年）→ 半額×60か月`;
+        } else {
+            return { amount: 0, months: 0, rate: 0, detail: `勤続${serviceYears}年（9年以下）のため調整額なし` };
+        }
+    } else {
+        return { amount: 0, months: 0, rate: 0, detail: '調整額なし' };
+    }
+    
+    const amount = Math.floor(choseiMonthly * rate * months);
+    return { amount, months, rate, detail };
+}
+
+
+
+// 令和⇔西暦変換関数
+function toReiwa(westernYear) {
+    if (westernYear < 2019) return null;
+    return westernYear - 2018;
+}
+
+function toWestern(reiwaYear) {
+    return reiwaYear + 2018;
+}
+
+// 年度を取得（4月始まり）
+function getFiscalYear(dateStr) {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    
+    if (month >= 4) {
+        return year;
+    } else {
+        return year - 1;
+    }
+}
+
+// 教職調整額の率を取得（退職日基準）
+function getTeacherAdjustmentRate(retireDate) {
+    const date = new Date(retireDate);
+    
+    // 令和8年1月1日 = 2026年1月1日
+    if (date >= new Date('2026-01-01') && date < new Date('2027-01-01')) return 0.05;
+    if (date >= new Date('2027-01-01') && date < new Date('2028-01-01')) return 0.06;
+    if (date >= new Date('2028-01-01') && date < new Date('2029-01-01')) return 0.07;
+    if (date >= new Date('2029-01-01') && date < new Date('2030-01-01')) return 0.08;
+    if (date >= new Date('2030-01-01') && date < new Date('2031-01-01')) return 0.09;
+    if (date >= new Date('2031-01-01')) return 0.10;
+    
+    return 0.04; // 令和7年12月31日まで
+}
+
+// 勧奨退職の年齢下限を取得（退職日の年度基準）
+function getKanshoMinAge(retireDate) {
+    const fiscalYear = getFiscalYear(retireDate);
+    
+    // 令和7年度 = 2025年度
+    if (fiscalYear === 2025) return 51;
+    if (fiscalYear === 2026) return 52;
+    if (fiscalYear === 2027) return 53;
+    if (fiscalYear === 2028) return 54;
+    if (fiscalYear >= 2029) return 55;
+    
+    return 51; // それ以前
+}
+
+// 早期退職特例の最大加算率を取得
+function getMaxEarlyRetireRate(retireDate) {
+    const minAge = getKanshoMinAge(retireDate);
+    const yearsUntil60 = 60 - minAge;
+    return yearsUntil60 * 0.03;
+}
+
+// 日付を「令和X年（YYYY年）M月D日」または「平成X年（YYYY年）M月D日」形式で表示
+function formatDateWithReiwa(dateStr) {
+    if (!dateStr) return '';
+    
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    
+    // 令和（2019年5月1日〜）
+    const reiwa = toReiwa(year);
+    if (reiwa) {
+        return `令和${reiwa}年（${year}年）${month}月${day}日`;
+    }
+    
+    // 平成（1989年1月8日〜2019年4月30日）
+    if (year >= 1989 && year <= 2019) {
+        const heisei = year - 1988;
+        // 1989年1月7日以前は昭和64年
+        if (year === 1989 && month === 1 && day <= 7) {
+            return `昭和64年（${year}年）${month}月${day}日`;
+        }
+        // 2019年5月1日以降は令和
+        if (year === 2019 && month >= 5) {
+            return `令和1年（${year}年）${month}月${day}日`;
+        }
+        return `平成${heisei}年（${year}年）${month}月${day}日`;
+    }
+    
+    // 昭和（1926年12月25日〜1989年1月7日）
+    if (year >= 1926 && year < 1989) {
+        const showa = year - 1925;
+        return `昭和${showa}年（${year}年）${month}月${day}日`;
+    }
+    
+    // それ以前は西暦のみ
+    return `${year}年${month}月${day}日`;
+}
+
+// 入力補助用の令和変換
+function updateReiwaDisplay() {
+    const hireDate = document.getElementById('hireDate');
+    const retireDate = document.getElementById('retireDate');
+    
+    if (hireDate && hireDate.value) {
+        const display = document.getElementById('hireDateReiwa');
+        if (display) {
+            display.textContent = formatDateWithReiwa(hireDate.value);
+        }
+    }
+    
+    if (retireDate && retireDate.value) {
+        const display = document.getElementById('retireDateReiwa');
+        if (display) {
+            const reiwaText = formatDateWithReiwa(retireDate.value);
+            display.textContent = reiwaText;
+            
+            // 教職調整額率と勧奨退職年齢下限も表示
+            const rate = getTeacherAdjustmentRate(retireDate.value);
+            const minAge = getKanshoMinAge(retireDate.value);
+            const maxRate = getMaxEarlyRetireRate(retireDate.value);
+            
+            const infoDisplay = document.getElementById('retireDateInfo');
+            if (infoDisplay) {
+                infoDisplay.innerHTML = `
+                    <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                        ・教職調整額: ${(rate * 100).toFixed(0)}%<br>
+                        ・勧奨退職対象年齢: ${minAge}歳以上（最大割増: ${(maxRate * 100).toFixed(0)}%）
+                    </div>
+                `;
+            }
+        }
+    }
+}
+
+
+function calculate() {
+    console.log('計算開始');
+    hideError();
+    
+    try {
+        const hireDate = document.getElementById('hireDate').value;
+        const retireDate = document.getElementById('retireDate').value;
+        let retireReason = document.getElementById('retireReason').value;
+        const earlyRetireBonus = document.getElementById('earlyRetireBonus').checked;
+        const grade = document.getElementById('grade').value;
+        const step = parseInt(document.getElementById('step').value);
+        const position = document.getElementById('position').value;
+        
+        if (!hireDate || !retireDate || !retireReason || !grade || !step || !position) {
+            showError('すべての必須項目を入力してください');
+            return;
+        }
+        
+        let joyoken = '5条';
+        if (retireReason === '5-kansho' || retireReason === '5-teinnen') {
+            joyoken = '5条';
+        } else if (retireReason === '3') {
+            joyoken = '3条';
+        } else if (retireReason === '4') {
+            joyoken = '4条';
+        } else if (retireReason === '5') {
+            joyoken = '5条';
+        }
+        
+        const isManager = ['5', '6', '7', '8'].includes(position);
+        const serviceCalc = calculateServiceYears(hireDate, retireDate, leaveItems);
+        const salaryCalc = calculateRetireSalary(grade, step, isManager, retireDate);
+        
+        let earlyRetireRate = 0;
+        let adjustedSalary = salaryCalc.total;
+        
+        if (earlyRetireBonus && retireReason === '5-kansho') {
+            const age = parseInt(document.getElementById('retireAge').value);
+            const minAge = getKanshoMinAge(retireDate);
+            const fiscalYear = getFiscalYear(retireDate);
+            const reiwaYear = toReiwa(fiscalYear);
+            
+            if (age && age >= minAge && age <= 59) {
+                const yearsUntil60 = 60 - age;
+                earlyRetireRate = yearsUntil60 * 0.03;
+                adjustedSalary = Math.floor(salaryCalc.total * (1 + earlyRetireRate));
+            } else if (age && age < minAge) {
+                showError(`令和${reiwaYear}年度の勧奨退職は${minAge}歳以上が対象です（入力年齢: ${age}歳）`);
+                return;
+            }
+        }
+        
+        const years = Math.min(serviceCalc.serviceYears, 47);
+        const shikyuwari = SHIKYUWARI_TABLE[joyoken][years] || 0;
+        const basicAmount = Math.floor(adjustedSalary * shikyuwari);
+        const choseiMonthly = CHOSEI_AMOUNT[position] || 0;
+        const adjustmentCalc = calculateAdjustmentAmount(choseiMonthly, serviceCalc.serviceYears, joyoken);
+        const adjustmentAmount = adjustmentCalc.amount;
+        const totalAmount = basicAmount + adjustmentAmount;
+        
+        const fiscalYear = getFiscalYear(retireDate);
+        const reiwaYear = toReiwa(fiscalYear);
+        const minAge = getKanshoMinAge(retireDate);
+        
+        displayResults({
+            totalAmount,
+            basicAmount,
+            adjustmentAmount,
+            serviceCalc,
+            salaryCalc,
+            earlyRetireRate,
+            adjustedSalary,
+            shikyuwari,
+            choseiMonthly,
+            retireReason: joyoken,
+            adjustmentCalc,
+            fiscalYear,
+            reiwaYear,
+            minAge,
+            retireDate: formatDateWithReiwa(retireDate)
+        });
+        
+    } catch (error) {
+        showError('計算中にエラーが発生しました: ' + error.message);
+        console.error(error);
+    }
+}
+
+function displayResults(data) {
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('resultArea').classList.remove('hidden');
+    
+    document.getElementById('totalAmount').textContent = data.totalAmount.toLocaleString();
+    document.getElementById('basicAmount').textContent = data.basicAmount.toLocaleString() + '円';
+    document.getElementById('adjustmentAmount').textContent = data.adjustmentAmount.toLocaleString() + '円';
+    
+    let serviceDetail = `
+        <div class="detail-row">退職年月日: ${data.retireDate}</div>
+        <div class="detail-row">退職年度: 令和${data.reiwaYear}年度（${data.fiscalYear}年度）</div>
+        <div class="detail-row">在職期間: ${data.serviceCalc.totalMonths}ヶ月</div>`;
+    
+    if (data.serviceCalc.details.length > 0) {
+        serviceDetail += '<div class="detail-row" style="margin-top: 10px;"><strong>除算期間:</strong></div>';
+        data.serviceCalc.details.forEach(d => {
+            const typeName = {
+                'general': '一般の休職・停職',
+                'union': '組合専従休職',
+                'childcare1': '育児休業（1歳まで）',
+                'childcare2': '育児休業（その他）',
+                'parttime': '育児短時間勤務'
+            }[d.type];
+            serviceDetail += `<div class="detail-row">・${typeName}: ${d.months}ヶ月 × ${d.rate} = ${d.deduction.toFixed(1)}ヶ月除算</div>`;
+        });
+        serviceDetail += `<div class="detail-row">除算合計: ${data.serviceCalc.deductionMonths.toFixed(1)}ヶ月</div>`;
+    }
+    
+    serviceDetail += `
+        <div class="detail-row">実質在職期間: ${data.serviceCalc.netMonths.toFixed(1)}ヶ月</div>
+        <div class="formula">勤続年数 = ${Math.floor(data.serviceCalc.netMonths / 12)}年 + ${(data.serviceCalc.netMonths % 12).toFixed(0)}ヶ月 → ${data.serviceCalc.serviceYears}年</div>
+        <div class="detail-row" style="font-size: 12px; color: #999;">※6ヶ月以上の端数は1年、6ヶ月未満は切り捨て</div>
+    `;
+    document.getElementById('serviceYearsDetail').innerHTML = serviceDetail;
+    
+    let salaryDetail = `
+        <div class="detail-row">基本給（給料表）: ${data.salaryCalc.baseSalary.toLocaleString()}円</div>
+        <div class="detail-row">${data.salaryCalc.allowanceType}: ${data.salaryCalc.allowance.toLocaleString()}円</div>
+        <div class="formula">退職日給料月額 = ${data.salaryCalc.baseSalary.toLocaleString()} + ${data.salaryCalc.allowance.toLocaleString()} = ${data.salaryCalc.total.toLocaleString()}円</div>
+    `;
+    
+    if (data.earlyRetireRate > 0) {
+        salaryDetail += `
+            <div class="detail-row" style="margin-top: 10px;"><strong>早期退職特例（割増）適用:</strong></div>
+            <div class="detail-row">令和${data.reiwaYear}年度の勧奨退職対象年齢: ${data.minAge}歳以上</div>
+            <div class="detail-row">割増率: ${(data.earlyRetireRate * 100).toFixed(0)}%（60歳まで${Math.round(data.earlyRetireRate / 0.03)}年）</div>
+            <div class="formula">調整後給料月額 = ${data.salaryCalc.total.toLocaleString()} × ${(1 + data.earlyRetireRate).toFixed(2)} = ${data.adjustedSalary.toLocaleString()}円</div>
+        `;
+    }
+    
+    document.getElementById('salaryDetail').innerHTML = salaryDetail;
+    
+    const basicDetail = `
+        <div class="detail-row">支給割合（${data.retireReason}・${data.serviceCalc.serviceYears}年）: ${data.shikyuwari}</div>
+        <div class="formula">基本額 = ${data.adjustedSalary.toLocaleString()}円 × ${data.shikyuwari} = ${data.basicAmount.toLocaleString()}円</div>
+    `;
+    document.getElementById('basicAmountDetail').innerHTML = basicDetail;
+    
+    const adjustDetail = `
+        <div class="detail-row">${data.adjustmentCalc.detail}</div>
+        <div class="detail-row">調整額月額: ${data.choseiMonthly.toLocaleString()}円</div>
+        <div class="detail-row">支給月数: ${data.adjustmentCalc.months}か月</div>
+        <div class="detail-row">支給率: ${data.adjustmentCalc.rate === 1 ? '全額' : data.adjustmentCalc.rate === 0.5 ? '半額(1/2)' : 'なし'}</div>
+        <div class="formula">調整額 = ${data.choseiMonthly.toLocaleString()}円 × ${data.adjustmentCalc.rate} × ${data.adjustmentCalc.months}か月 = ${data.adjustmentAmount.toLocaleString()}円</div>
+    `;
+    document.getElementById('adjustmentDetail').innerHTML = adjustDetail;
+    
+    document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+    </script>
+</body>
+</html>                                                                  
